@@ -89,11 +89,6 @@ String password = "";
 const char* ssid = "test";
 const char* password = "1234";
 
-// NTP
-const char *ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = -4 * 60 * 60;
-const int daylightOffset_sec = 0;
-
 // RTC
 bool rtc_flag = false;
 
