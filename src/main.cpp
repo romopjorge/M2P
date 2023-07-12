@@ -63,7 +63,7 @@ void rtctime();
 void airquality();
 void writeFile(fs::FS &fs, const char *path, const char *message);
 void appendFile(fs::FS &fs, const char *path, const char *message);
-void openFile(fs::FS &fs, const char * path);
+void openFile(fs::FS &fs, const char *path);
 uint8_t findDevices();
 void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3, float &tempsensor4, float &tempsensor5);
 void pressure();
@@ -86,8 +86,8 @@ bool wifion = false;
 String ssid = "";
 String password = "";
 */
-const char* ssid = "test";
-const char* password = "1234";
+const char *ssid = "test";
+const char *password = "1234";
 
 // RTC
 bool rtc_flag = false;
@@ -137,7 +137,7 @@ int I2[1000];
 String Irms3;
 int I3[1000];
 
-//Presion
+// Presion
 #define SDA_1 21
 #define SCL_1 22
 #define SENSOR_ADDRESS 0x6D
@@ -174,14 +174,14 @@ int lastsensor = 0;
 int lastpressure = 0;
 int lastcurrent = 0;
 int lastdatalog = 0;
-//int lasttext1 = 0;
-//int lasttext2 = 10000;
-//int lasttext3 = 15000;
-//const int timerDelay = 20000;
+// int lasttext1 = 0;
+// int lasttext2 = 10000;
+// int lasttext3 = 15000;
+// const int timerDelay = 20000;
 int timerrefresh = 20000;
 int sensorrefresh = 15000;
-//int pressurerefresh = 10000;
-//int currentrefresh = 5000;
+// int pressurerefresh = 10000;
+// int currentrefresh = 5000;
 int datalogrefresh = 25000;
 
 // HTTP
@@ -209,8 +209,8 @@ void setup()
   ADS2.begin();
   ADS2.setGain(4);
   ADS2.setDataRate(7);
-  delay(1); 
-  
+  delay(1);
+
 
   display.begin(SH1106_SWITCHCAPVCC, 0x3C);
   display.display();
@@ -241,28 +241,27 @@ void setup()
   rtc.begin();
   delay(1);
 
-  pinMode(LED_BUILTIN,OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   delay(1);
 
-/*
-  delay(100);
-  WiFi.begin(ssid, password);
-  delay(100);
+  /*
+    delay(100);
+    WiFi.begin(ssid, password);
+    delay(100);
 
-  //Set math model to calculate the PPM concentration and the value of constants
-  MQ135.setRegressionMethod(1); //_PPM =  a*ratio^b
-  MQ135.init(); 
-  float calcR0 = 0;
-  for(int i = 1; i<=10; i ++)
-  {
-    MQ135.update(); // Update data, the arduino will be read the voltage on the analog pin
-    calcR0 += MQ135.calibrate(3.6);
-  }
-  MQ135.setR0(calcR0/10);
- // MQ CAlibration
-  MQ135.serialDebug(false);
-  */
-
+    //Set math model to calculate the PPM concentration and the value of constants
+    MQ135.setRegressionMethod(1); //_PPM =  a*ratio^b
+    MQ135.init();
+    float calcR0 = 0;
+    for(int i = 1; i<=10; i ++)
+    {
+      MQ135.update(); // Update data, the arduino will be read the voltage on the analog pin
+      calcR0 += MQ135.calibrate(3.6);
+    }
+    MQ135.setR0(calcR0/10);
+   // MQ CAlibration
+    MQ135.serialDebug(false);
+    */
 }
 
 void loop()
@@ -294,43 +293,42 @@ void loop()
     currentact = true;
   }
 
-/*
-  if ((WiFi.status() == WL_CONNECTED) && (rtchour == false))
-  {
-    rtctime();
-    rtchour = true;
-    filename = "/" + time.timestamp() + ".csv";
-    path = filename.c_str();
-    openFile(SD, path);
-  }
-
-  if ((millis() - lastcurrent) >= currentrefresh)
-  {
-    lastcurrent = millis();
-    currentsensor();
-    if (currenton == false)
+  /*
+    if ((WiFi.status() == WL_CONNECTED) && (rtchour == false))
     {
-      currentrefresh = 30000;
-      currenton = true;
+      rtctime();
+      rtchour = true;
+      filename = "/" + time.timestamp() + ".csv";
+      path = filename.c_str();
+      openFile(SD, path);
     }
-  }
-  
 
-  if ((millis() - lastpressure) >= pressurerefresh)
-  {
-    lastpressure = millis();
-    pressure();
-    if (pressureon == false)
+    if ((millis() - lastcurrent) >= currentrefresh)
     {
-      pressurerefresh = 30000;
-      pressureon = true;
+      lastcurrent = millis();
+      currentsensor();
+      if (currenton == false)
+      {
+        currentrefresh = 30000;
+        currenton = true;
+      }
     }
-  }
-*/
+
+
+    if ((millis() - lastpressure) >= pressurerefresh)
+    {
+      lastpressure = millis();
+      pressure();
+      if (pressureon == false)
+      {
+        pressurerefresh = 30000;
+        pressureon = true;
+      }
+    }
+  */
 
   if ((millis() - lastsensor) >= sensorrefresh)
   {
-    digitalWrite(LED_BUILTIN, HIGH);
     lastsensor = millis();
     leertemperatura(tempsensor1, tempsensor2, tempsensor3, tempsensor4, tempsensor5);
     delay(1);
@@ -340,15 +338,14 @@ void loop()
     temps2 = String(tempsensor2);
     temps3 = String(tempsensor3);
     temps4 = String(tempsensor4);
-    //temps5 = String(tempsensor5);
+    // temps5 = String(tempsensor5);
     if (screenon == false)
     {
-      //tempmin = tempsensor1;
-      sensorrefresh = 60000*1;
+      // tempmin = tempsensor1;
+      sensorrefresh = 60000 * 1;
       screenon = true;
-    } 
+    }
     delay(1);
-    digitalWrite(LED_BUILTIN, LOW);
 
     /*
     if (day != rtc.getTime("%d") && rtchour == true)
@@ -361,36 +358,29 @@ void loop()
     */
   }
 
-/*
   if ((millis() - lastrefresh) >= timerrefresh)
   {
+    WiFi.begin(ssid, password);
+    delay(1);
     lastrefresh = millis();
     if (WiFi.status() == WL_CONNECTED)
     {
+      digitalWrite(LED_BUILTIN, HIGH);
       httppos();
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      digitalWrite(LED_BUILTIN, LOW);
     }
-    if (WiFi.status() != WL_CONNECTED)
+    else
     {
       WiFi.disconnect();
-      WiFi.begin(ssid, password);
-      delay(1);
-      if (WiFi.status() == WL_CONNECTED)
-      {
-        rtctime();
-        rtchour = true;
-      }
-    }
-    if (rtchour == true)
-    {
-      timestamp = rtc.getTime("%H:%M:%S");
     }
     if (httpon == false)
     {
-      timerrefresh = 30000;
+      timerrefresh = 60000;
       httpon = true;
     }
   }
-*/
 
   if ((millis() - lastdatalog) >= datalogrefresh) // && rtc_flag == true)
   {
@@ -405,7 +395,7 @@ void loop()
     appendFile(SD, path, datalog.c_str());
     if (datalogon == false)
     {
-      datalogrefresh = 60000*1;
+      datalogrefresh = 60000 * 1;
       datalogon = true;
     }
     digitalWrite(LED_BUILTIN, LOW);
@@ -481,7 +471,7 @@ void serialandwrite()
     preferences.putString("ssid", ssid);
     preferences.putString("password", password);
     preferences.end();
-    wifisearch = false; 
+    wifisearch = false;
   }
   */
   if (inputString.startsWith("$ST"))
@@ -542,11 +532,11 @@ void serialandwrite()
 void tempload()
 {
   preferences.begin("sensor", false);
-  temps1 = preferences.getString("tempsensor1","0");
-  temps2 = preferences.getString("tempsensor2","0");
-  temps3 = preferences.getString("tempsensor3","0");
-  temps4 = preferences.getString("tempsensor4","0");
-  temps5 = preferences.getString("tempsensor5","0");
+  temps1 = preferences.getString("tempsensor1", "0");
+  temps2 = preferences.getString("tempsensor2", "0");
+  temps3 = preferences.getString("tempsensor3", "0");
+  temps4 = preferences.getString("tempsensor4", "0");
+  temps5 = preferences.getString("tempsensor5", "0");
   countt = preferences.getUInt("count", 0);
   preferences.end();
 
@@ -696,16 +686,17 @@ void screen(float temp1)
   display.print(texto);
   display.setTextSize(3);
   L = String(temp1);
-  switch (L.length()){
-    case 4:
-      display.setCursor(36, 24);
-      break;
-    case 5:
-      display.setCursor(18, 24);
-      break;
-    case 6:
-      display.setCursor(0, 24);
-      break;
+  switch (L.length())
+  {
+  case 4:
+    display.setCursor(36, 24);
+    break;
+  case 5:
+    display.setCursor(18, 24);
+    break;
+  case 6:
+    display.setCursor(0, 24);
+    break;
   }
   display.print(temp1);
   display.drawCircle(111, 34, 2, 1);
@@ -830,10 +821,9 @@ void httppos()
 
     String Modulo = "M2P_001_23";
     //\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",
-    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\",\"sensor8\":\"" + Irms1 + "\",\"sensor11\":\"" + String(druck) + "\"}}";          
+    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\",\"sensor8\":\"" + Irms1 + "\",\"sensor11\":\"" + String(druck) + "\"}}";
     Serial.println(Irms1);
     int httpResponseCode = http.POST(httpRequestData);*/
- 
   }
   else
   {
@@ -860,28 +850,28 @@ void rtctime()
 
 void writeFile(fs::FS &fs, const char *path, const char *message)
 {
-  //Serial.printf("Writing file: %s\n", path);
+  // Serial.printf("Writing file: %s\n", path);
 
   File file = fs.open(path, FILE_WRITE);
   if (!file)
   {
-    //Serial.println("Failed to open file for writing");
+    // Serial.println("Failed to open file for writing");
     return;
   }
   if (file.print(message))
   {
-    //Serial.println("File written");
+    // Serial.println("File written");
   }
   else
   {
-    //Serial.println("Write failed");
+    // Serial.println("Write failed");
   }
   file.close();
 }
 
 void appendFile(fs::FS &fs, const char *path, const char *message)
 {
-  //Serial.printf("Appending to file: %s\n", path);
+  // Serial.printf("Appending to file: %s\n", path);
 
   File file = fs.open(path, FILE_APPEND);
   if (!file)
@@ -890,20 +880,22 @@ void appendFile(fs::FS &fs, const char *path, const char *message)
   }
   if (file.print(message))
   {
-    //Serial.println("Message appended");
+    // Serial.println("Message appended");
   }
   else
   {
-    //Serial.println("Append failed");
+    // Serial.println("Append failed");
   }
   file.close();
 }
 
-void openFile(fs::FS &fs, const char * path){
-  //Serial.printf("Open file: %s\n", path);
+void openFile(fs::FS &fs, const char *path)
+{
+  // Serial.printf("Open file: %s\n", path);
 
   File file = fs.open(path);
-  if(!file){
+  if (!file)
+  {
     writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, TempAmb, Humidity \r\n");
     delay(1);
     return;
