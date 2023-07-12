@@ -648,7 +648,7 @@ void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3,
   }
   else
   {
-    tempsensor1 = 404;
+    tempsensor1 = -127;
   }
 
   if (sensor2[0] != 0 && sensor2[1] != 0)
@@ -657,7 +657,7 @@ void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3,
   }
   else
   {
-    tempsensor2 = 404;
+    tempsensor2 = -127;
   }
 
   if (sensor3[0] != 0 && sensor3[1] != 0)
@@ -666,7 +666,7 @@ void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3,
   }
   else
   {
-    tempsensor3 = 404;
+    tempsensor3 = -127;
   }
 
   if (sensor4[0] != 0 && sensor4[1] != 0)
@@ -675,7 +675,7 @@ void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3,
   }
   else
   {
-    tempsensor4 = 404;
+    tempsensor4 = -127;
   }
 
   if (sensor5[0] != 0 && sensor5[1] != 0)
@@ -684,7 +684,7 @@ void leertemperatura(float &tempsensor1, float &tempsensor2, float &tempsensor3,
   }
   else
   {
-    tempsensor5 = 404;
+    tempsensor5 = -127;
   }
 }
 
