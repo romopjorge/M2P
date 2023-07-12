@@ -82,12 +82,13 @@ bool screenon = false;
 // WiFi Variables
 bool wifisearch = false;
 bool wifion = false;
-/*
-String ssid = "";
-String password = "";
-*/
-const char *ssid = "test";
-const char *password = "1234";
+
+// String ssid = "";
+// String password = "";
+
+const char *ssid = "TESLA LIMITADA";
+const char *password = "sp2PxwdwQ3mx";
+const int wifiTimeout = 2000;
 
 // RTC
 bool rtc_flag = false;
@@ -333,6 +334,7 @@ void loop()
     leertemperatura(tempsensor1, tempsensor2, tempsensor3, tempsensor4, tempsensor5);
     delay(1);
     humiditysensor();
+    delay(1);
     // airquality();
     temps1 = String(tempsensor1);
     temps2 = String(tempsensor2);
@@ -360,15 +362,18 @@ void loop()
 
   if ((millis() - lastrefresh) >= timerrefresh)
   {
-    WiFi.begin(ssid, password);
-    delay(1);
     lastrefresh = millis();
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED && millis() - lastrefresh < wifiTimeout)
+    {
+      delay(500);
+    }
+    delay(1);
     if (WiFi.status() == WL_CONNECTED)
     {
       digitalWrite(LED_BUILTIN, HIGH);
       httppos();
       WiFi.disconnect();
-      WiFi.mode(WIFI_OFF);
       digitalWrite(LED_BUILTIN, LOW);
     }
     else
@@ -384,8 +389,8 @@ void loop()
 
   if ((millis() - lastdatalog) >= datalogrefresh) // && rtc_flag == true)
   {
-    digitalWrite(LED_BUILTIN, HIGH);
     lastdatalog = millis();
+    digitalWrite(LED_BUILTIN, HIGH);
     DateTime time = rtc.now();
     allsensor = temps1 + "," + temps2 + "," + temps3 + "," + temps4 + "," + tamp + "," + h;
     datalog = time.timestamp() + "," + allsensor + "\r\n";
