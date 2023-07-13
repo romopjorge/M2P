@@ -146,7 +146,7 @@ bool pressureon = false;
 
 /* API YD3GYAGK2SG2ZDKY / KNDQOPULOB532M03 */
 String apiKey = "453OP6IXES3VEVOS";
-const char *serverName = "https://iotesla.herokuapp.com/datos/"; /*"http://api.thingspeak.com/update"*/
+const char *serverName = "http://api.thingspeak.com/update"; /*"https://iotesla.herokuapp.com/datos/"*/
 
 // Instancias
 Preferences preferences;
@@ -335,7 +335,6 @@ void loop()
     leertemperatura(tempsensor1, tempsensor2, tempsensor3, tempsensor4, tempsensor5);
     delay(1);
     humiditysensor();
-    delay(1);
     // airquality();
     temps1 = String(tempsensor1);
     temps2 = String(tempsensor2);
@@ -810,15 +809,13 @@ void httppos()
     WiFiClient client;
     HTTPClient http;
 
-    /*
     http.begin(client, serverName);
 
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     String httpRequestData = "api_key=" + apiKey + "&field1=" + temps1 + "&field2=" + temps2 + "&field3=" + temps3 + "&field4=" + temps4 + "&field5=" + tamp + "&field6=" + h;
     int httpResponseCode = http.POST(httpRequestData);
-    Serial.println(httpResponseCode);
-    */
 
+    /*
     http.begin(serverName);
 
     http.addHeader("Content-Type", "application/json");
@@ -826,6 +823,7 @@ void httppos()
     String Modulo = "M2P_001_23";
     String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\"}}";
     int httpResponseCode = http.POST(httpRequestData);
+    */
 
   }
   else
