@@ -51,7 +51,7 @@ Adafruit_SH1106 display(21, 22);
 
 // Funciones
 void serialandwrite();
-void wificonnect();
+void wifiload();
 void serialEvent();
 void tempload();
 void screen(float temp1);
@@ -82,12 +82,9 @@ bool screenon = false;
 // WiFi Variables
 bool wifisearch = false;
 bool wifion = false;
-
-// String ssid = "";
-// String password = "";
-
-const char *ssid = "TESLA LIMITADA";
-const char *password = "sp2PxwdwQ3mx";
+ 
+String ssid = "";
+String password = "";
 const int wifiTimeout = 2000;
 
 // RTC
@@ -149,7 +146,7 @@ bool pressureon = false;
 
 /* API YD3GYAGK2SG2ZDKY / KNDQOPULOB532M03 */
 String apiKey = "453OP6IXES3VEVOS";
-const char *serverName = "http://api.thingspeak.com/update"; /*"https://iotesla.herokuapp.com/datos/"*/
+const char *serverName = "https://iotesla.herokuapp.com/datos/"; /*"http://api.thingspeak.com/update"*/
 
 // Instancias
 Preferences preferences;
@@ -180,10 +177,11 @@ int lastdatalog = 0;
 // int lasttext3 = 15000;
 // const int timerDelay = 20000;
 int timerrefresh = 20000;
-int sensorrefresh = 15000;
+int sensorrefresh = 10000;
 // int pressurerefresh = 10000;
 // int currentrefresh = 5000;
-int datalogrefresh = 25000;
+int datalogrefresh = 15000;
+int minutes = 5;
 
 // HTTP
 bool httpon = false;
@@ -243,6 +241,9 @@ void setup()
   delay(1);
 
   pinMode(LED_BUILTIN, OUTPUT);
+  delay(1);
+
+  wifiload();
   delay(1);
 
   /*
@@ -344,7 +345,7 @@ void loop()
     if (screenon == false)
     {
       // tempmin = tempsensor1;
-      sensorrefresh = 60000 * 1;
+      sensorrefresh = 60000 * minutes;
       screenon = true;
     }
     delay(1);
@@ -363,7 +364,7 @@ void loop()
   if ((millis() - lastrefresh) >= timerrefresh)
   {
     lastrefresh = millis();
-    WiFi.begin(ssid, password);
+    WiFi.begin(ssid.c_str(), password.c_str());
     while (WiFi.status() != WL_CONNECTED && millis() - lastrefresh < wifiTimeout)
     {
       delay(500);
@@ -382,7 +383,7 @@ void loop()
     }
     if (httpon == false)
     {
-      timerrefresh = 60000;
+      timerrefresh = 60000 * minutes;
       httpon = true;
     }
   }
@@ -400,7 +401,7 @@ void loop()
     appendFile(SD, path, datalog.c_str());
     if (datalogon == false)
     {
-      datalogrefresh = 60000 * 1;
+      datalogrefresh = 60000 * minutes;
       datalogon = true;
     }
     digitalWrite(LED_BUILTIN, LOW);
@@ -452,33 +453,29 @@ void loop()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*void wificonnect()
+void wifiload()
 {
   preferences.begin("credentials", false);
   ssid = preferences.getString("ssid", "");
   password = preferences.getString("password", "");
   preferences.end();
-  WiFi.begin(ssid.c_str(), password.c_str());
-}*/
+}
 
 void serialandwrite()
 {
-  /*
   if (inputString.startsWith("$W"))
   {
+    digitalWrite(LED_BUILTIN, HIGH);
     ssid = inputString.substring(2, 34);
     ssid.trim();
     password = inputString.substring(34);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
-    digitalWrite(LED_BUILTIN, LOW);
     preferences.begin("credentials", false);
     preferences.putString("ssid", ssid);
     preferences.putString("password", password);
     preferences.end();
-    wifisearch = false;
+    digitalWrite(LED_BUILTIN, LOW);
   }
-  */
+
   if (inputString.startsWith("$ST"))
   {
     findDevices();
@@ -813,22 +810,23 @@ void httppos()
     WiFiClient client;
     HTTPClient http;
 
+    /*
     http.begin(client, serverName);
 
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     String httpRequestData = "api_key=" + apiKey + "&field1=" + temps1 + "&field2=" + temps2 + "&field3=" + temps3 + "&field4=" + temps4 + "&field5=" + tamp + "&field6=" + h;
     int httpResponseCode = http.POST(httpRequestData);
     Serial.println(httpResponseCode);
+    */
 
-    /*http.begin(serverName);
+    http.begin(serverName);
 
     http.addHeader("Content-Type", "application/json");
 
     String Modulo = "M2P_001_23";
-    //\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",
-    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\",\"sensor8\":\"" + Irms1 + "\",\"sensor11\":\"" + String(druck) + "\"}}";
-    Serial.println(Irms1);
-    int httpResponseCode = http.POST(httpRequestData);*/
+    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\"}}";
+    int httpResponseCode = http.POST(httpRequestData);
+
   }
   else
   {
