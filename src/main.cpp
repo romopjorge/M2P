@@ -309,12 +309,14 @@ void loop()
     if ((millis() - lastcurrent) >= currentrefresh)
     {
       lastcurrent = millis();
+      digitalWrite(LED_BUILTIN, HIGH);
       currentsensor();
       if (currenton == false)
       {
         currentrefresh = 60000 * minutes;
         currenton = true;
       }
+      digitalWrite(LED_BUILTIN, LOW);
     }
 
     /*
@@ -333,6 +335,7 @@ void loop()
   if ((millis() - lastsensor) >= sensorrefresh)
   {
     lastsensor = millis();
+    digitalWrite(LED_BUILTIN, HIGH);
     leertemperatura(tempsensor1, tempsensor2, tempsensor3, tempsensor4, tempsensor5);
     delay(1);
     humiditysensor();
@@ -349,6 +352,7 @@ void loop()
       sensorrefresh = 60000 * minutes;
       screenon = true;
     }
+    digitalWrite(LED_BUILTIN, LOW);
     delay(1);
 
     /*
