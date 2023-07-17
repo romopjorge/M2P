@@ -179,7 +179,7 @@ int lastdatalog = 0;
 int timerrefresh = 20000;
 int sensorrefresh = 10000;
 // int pressurerefresh = 10000;
-// int currentrefresh = 5000;
+int currentrefresh = 5000;
 int datalogrefresh = 15000;
 int minutes = 5;
 
@@ -198,13 +198,13 @@ void setup()
   Wire.begin();
   Wire.setClock(400000);
   delay(1);
-
-  /*
+  
   ADS1.begin();
   ADS1.setGain(4);
   ADS1.setDataRate(7);
   delay(1);
 
+  /*
   ADS2.begin();
   ADS2.setGain(4);
   ADS2.setDataRate(7);
@@ -304,6 +304,7 @@ void loop()
       path = filename.c_str();
       openFile(SD, path);
     }
+    */
 
     if ((millis() - lastcurrent) >= currentrefresh)
     {
@@ -311,12 +312,12 @@ void loop()
       currentsensor();
       if (currenton == false)
       {
-        currentrefresh = 30000;
+        currentrefresh = 60000 * minutes;
         currenton = true;
       }
     }
 
-
+    /*
     if ((millis() - lastpressure) >= pressurerefresh)
     {
       lastpressure = millis();
@@ -341,7 +342,7 @@ void loop()
     temps2 = String(tempsensor2);
     temps3 = String(tempsensor3);
     temps4 = String(tempsensor4);
-    // temps5 = String(tempsensor5);
+    temps5 = String(tempsensor5);
     if (screenon == false)
     {
       // tempmin = tempsensor1;
@@ -393,7 +394,7 @@ void loop()
     lastdatalog = millis();
     digitalWrite(LED_BUILTIN, HIGH);
     DateTime time = rtc.now();
-    allsensor = temps1 + "," + temps2 + "," + temps3 + "," + temps4 + "," + tamp + "," + h;
+    allsensor = temps1 + "," + temps2 + "," + temps3 + "," + temps4 + "," + temps5 + "," + tamp + "," + h;
     datalog = time.timestamp() + "," + allsensor + "\r\n";
     filename = "/" + time.timestamp(DateTime::TIMESTAMP_DATE) + ".csv";
     path = filename.c_str();
@@ -824,7 +825,7 @@ void httppos()
     http.addHeader("Content-Type", "application/json");
 
     String Modulo = "M2P_001_23";
-    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\"}}";
+    String httpRequestData = "{\"dato\":{\"modulo\":\"" + Modulo + "\",\"sensor1\":\"" + temps1 + "\",\"sensor2\":\"" + temps2 + "\",\"sensor3\":\"" + temps3 + "\",\"sensor4\":\"" + temps4 + "\",\"sensor5\":\"" + temps5 + "\",\"sensor6\":\"" + tamp + "\",\"sensor7\":\"" + h + "\"}}";
     int httpResponseCode = http.POST(httpRequestData);
 
   }
@@ -899,7 +900,7 @@ void openFile(fs::FS &fs, const char *path)
   File file = fs.open(path);
   if (!file)
   {
-    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, TempAmb, Humidity \r\n");
+    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, Temp5, TempAmb, Humidity \r\n");
     delay(1);
     return;
   }
