@@ -1,4 +1,6 @@
 {
     "cmake.configureOnOpen": false,
-    "cmake.sourceDirectory": "C:/Users/romoj/Documentos/PlatformIO/Projects/test/lib/Adafruit_BusIO"
+    "cmake.sourceDirectory": "C:/Users/romoj/Documentos/PlatformIO/Projects/test/lib/Adafruit_BusIO",
+    "idf.adapterTargetName": "C:\\Users\\TESLA2021\\esp\\esp-idf\\tools\\check_python_dependencies.py:12: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html",
+    "C_Cpp.errorSquiggles": "disabled"
 }
