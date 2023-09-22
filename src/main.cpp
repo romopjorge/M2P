@@ -4,8 +4,8 @@
 #include <WiFi.h>
 #include <WiFiUdp.h>
 #include <HTTPClient.h>
-const char* ssid = "TESLA LIMITADA";
-const char* password = "sp2PxwdwQ3mx";
+const char* ssid = "VTR-8786583";
+const char* password = "hrkc9vcGhcm8";
 const int wifitimeout = 2000;
 /* API YD3GYAGK2SG2ZDKY / KNDQOPULOB532M03 */
 String apiKey = "453OP6IXES3VEVOS";
@@ -25,7 +25,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "t3s1a2o2e";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo2/receiver";
+const char *PubTopic  = "iotesla/modulo3/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -63,9 +63,9 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0x28, 0x09, 0x6D, 0x14, 0x00, 0x00, 0x00, 0x43};
-uint8_t sensor2[8] = {0x28, 0x4D, 0x03, 0x15, 0x00, 0x00, 0x00, 0xD6};
-uint8_t sensor3[8] = {0x28, 0x1C, 0x06, 0x15, 0x00, 0x00, 0x00, 0x1D};
+uint8_t sensor1[8] = {0x28, 0x2C, 0x96, 0x14, 0x00, 0x00, 0x00, 0xC8};
+uint8_t sensor2[8] = {0x28, 0x10, 0x6C, 0x12, 0x00, 0x00, 0x00, 0x4A};
+uint8_t sensor3[8] = {0x28, 0x06, 0x07, 0x15, 0x00, 0x00, 0x00, 0x44};
 uint8_t sensor4[8] = {0};
 uint8_t sensor5[8] = {0};
 float tempsensor1;
@@ -79,8 +79,8 @@ int sum = 0;
 int current = 1;
 bool currenton = false;
 bool currentact = false;
-int factor1 = 50;
-int factor2 = 50;
+int factor1 = 20;
+int factor2 = 0;
 int factor3 = 0;
 String Irms1;
 int I1[1000];
@@ -128,7 +128,7 @@ void setup()
   Serial.begin(115200);
   delay(1);
 
-  SD.begin(5);
+  //SD.begin(5);
   delay(1);
 
   Wire.begin();
@@ -322,7 +322,7 @@ void setup()
 
 
   //-SD------------------------------------------------------------------------
-
+  /*
   xSemaphoreTake(sd_sem,portMAX_DELAY);
   digitalWrite(LED_BUILTIN, HIGH);
   DateTime time = rtc.now();
@@ -334,7 +334,7 @@ void setup()
   appendFile(SD, path, datalog.c_str());
   digitalWrite(LED_BUILTIN, LOW);
   xSemaphoreGive(sd_sem);
-
+  */
   //-MQTT-----------------------------------------------------------------------
 
   const int start_http = millis();
@@ -342,7 +342,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_002\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_003\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -478,7 +478,8 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
+  WiFi.begin("VTR-8786583", "hrkc9vcGhcm8");
+  //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
 }
 
 void connectToMqtt()
