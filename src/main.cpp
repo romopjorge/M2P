@@ -25,7 +25,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "t3s1a2o2e";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo4/receiver";
+const char *PubTopic  = "iotesla/modulo1/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -320,7 +320,7 @@ void setup()
   //-RTC----------------------------------------------------------------------------
   DateTime time = rtc.now();
   int now_day = time.day();
-  Serial.println(updt_day);
+
   if (WiFi.status() == WL_CONNECTED && updt_day != now_day) {
     timeClient.begin();
     timeClient.update();
@@ -332,7 +332,7 @@ void setup()
     rtc.adjust(DateTime(currentYear, currentMonth, monthDay, (timeClient.getHours()), (timeClient.getMinutes()), (timeClient.getSeconds())));
     updt_day = now_day;
   }
-  Serial.println(updt_day);
+
 
   //-SD------------------------------------------------------------------------
   
@@ -355,7 +355,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_001\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -491,8 +491,8 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  //WiFi.begin("#SCA_signal", "SCA@Modern2019");
-  WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
+  WiFi.begin("#SCA_signal", "SCA@Modern2019");
+  //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
 }
 
 void connectToMqtt()
