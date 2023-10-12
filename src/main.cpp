@@ -26,7 +26,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "t3s1a2o2e";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo1/receiver";
+const char *PubTopic  = "iotesla/modulo2/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -64,10 +64,10 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0x28, 0x51, 0x33, 0x15, 0x00, 0x00, 0x00, 0x74};
-uint8_t sensor2[8] = {0x28, 0x4D, 0x03, 0x15, 0x00, 0x00, 0x00, 0xD6};
-uint8_t sensor3[8] = {0x28, 0x1C, 0x06, 0x15, 0x00, 0x00, 0x00, 0x1D};
-uint8_t sensor4[8] = {0};
+uint8_t sensor1[8] = {0x28, 0x18, 0x97, 0x14, 0x00, 0x00, 0x00, 0x34};
+uint8_t sensor2[8] = {0x28, 0x5A, 0x41, 0x15, 0x00, 0x00, 0x00, 0x62};
+uint8_t sensor3[8] = {0x28, 0xA7, 0x75, 0x14, 0x00, 0x00, 0x00, 0x4E};
+uint8_t sensor4[8] = {0x28, 0x20, 0x1E, 0x15, 0x00, 0x00, 0x00, 0xCF};
 uint8_t sensor5[8] = {0};
 float tempsensor1;
 float tempsensor2;
@@ -77,11 +77,11 @@ float tempsensor5;
 
 // Current
 int sum = 0;
-int current = 2;
+int current = 1;
 bool currenton = false;
 bool currentact = false;
 int factor1 = 50;
-int factor2 = 50;
+int factor2 = 0;
 int factor3 = 0;
 String Irms1;
 int I1[1000];
@@ -340,7 +340,7 @@ void setup()
   xSemaphoreTake(sd_sem,portMAX_DELAY);
   digitalWrite(LED_BUILTIN, HIGH);
   time = rtc.now();
-  String allsensor = String(tempsensor1) + "," + String(tempsensor2) + "," + String(tempsensor3) + "," + String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(Irms2);
+  String allsensor = String(tempsensor1) + "," + String(tempsensor2) + "," + String(tempsensor3) + "," + String(tempsensor4) + "," + String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(in_State);
   datalog = time.timestamp() + "," + allsensor + "\r\n";
   filename = "/" + time.timestamp(DateTime::TIMESTAMP_DATE) + ".csv";
   path = filename.c_str();
@@ -356,7 +356,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_001\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_002\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor4\":\"" + String(tempsensor4) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -482,7 +482,7 @@ void openFile(fs::FS &fs, const char *path)
   File file = fs.open(path);
   if (!file)
   {
-    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, TempAmb, Humidity, Current1, Current2 \r\n");
+    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, TempAmb, Humidity, Current1 \r\n");
     delay(1);
     return;
   }
@@ -492,7 +492,7 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin("#SCA_signal", "SCA@Modern2019");
+  WiFi.begin("Funcionario", "Minsal.2014");
   //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
   k++;
   if (k == 5)
