@@ -123,9 +123,28 @@ int in_State = 0;
 
 //RTC Memory
 RTC_DATA_ATTR int updt_day = 0;
+RTC_DATA_ATTR int int_state = 1;
 
 void setup()
 {
+
+  //-Entradas-------------------------------------------------------------------------
+
+  in_State = digitalRead(in_Pin);
+
+  //-Deep Sleep Interrupts------------------------------------------------------------
+
+  esp_sleep_wakeup_cause_t wakeup_reason;
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  if (wakeup_reason == ESP_SLEEP_WAKEUP_EXT0){
+    int_state = !int_state;
+  }
+
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_32, int_state);
+
+  //-----------------------------------------------------------------------------------
+
   Serial.begin(115200);
   delay(1);
 
@@ -238,10 +257,6 @@ void setup()
   {
     tempsensor5 = -127;
   }
-
-  //-Entradas-------------------------------------------------------------------------
-
-  in_State = digitalRead(in_Pin);
 
   //-Humedad--------------------------------------------------------------------------
 
