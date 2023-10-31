@@ -26,7 +26,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "tesla640";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo3/receiver";
+const char *PubTopic  = "iotesla/modulo4/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -64,9 +64,9 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0x28, 0x2C, 0x96, 0x14, 0x00, 0x00, 0x00, 0xC8};
-uint8_t sensor2[8] = {0x28, 0x10, 0x6C, 0x12, 0x00, 0x00, 0x00, 0x4A};
-uint8_t sensor3[8] = {0x28, 0x06, 0x07, 0x15, 0x00, 0x00, 0x00, 0x44};
+uint8_t sensor1[8] = {0x28, 0x5E, 0x81, 0x14, 0x00, 0x00, 0x00, 0x13};
+uint8_t sensor2[8] = {0};
+uint8_t sensor3[8] = {0};
 uint8_t sensor4[8] = {0};
 uint8_t sensor5[8] = {0};
 float tempsensor1;
@@ -80,7 +80,7 @@ int sum = 0;
 int current = 1;
 bool currenton = false;
 bool currentact = false;
-int factor1 = 20;
+int factor1 = 50;
 int factor2 = 0;
 int factor3 = 0;
 String Irms1;
@@ -356,7 +356,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_003\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor4\":\"" + String(tempsensor4) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor4\":\"" + String(tempsensor4) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -492,8 +492,8 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin("VTR-8786583", "hrkc9vcGhcm8");
-  //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
+  //WiFi.begin("Funcionario", "Minsal.2014");
+  WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
   k++;
   if (k == 5)
   {
