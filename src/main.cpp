@@ -64,9 +64,9 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0x28, 0x5E, 0x81, 0x14, 0x00, 0x00, 0x00, 0x13};
-uint8_t sensor2[8] = {0};
-uint8_t sensor3[8] = {0};
+uint8_t sensor1[8] = {0x28, 0x51, 0x33, 0x15, 0x00, 0x00, 0x00, 0x74};
+uint8_t sensor2[8] = {0x28, 0x4D, 0x03, 0x15, 0x00, 0x00, 0x00, 0xD6};
+uint8_t sensor3[8] = {0x28, 0x1C, 0x06, 0x15, 0x00, 0x00, 0x00, 0x1D};
 uint8_t sensor4[8] = {0};
 uint8_t sensor5[8] = {0};
 float tempsensor1;
@@ -77,11 +77,11 @@ float tempsensor5;
 
 // Current
 int sum = 0;
-int current = 1;
+int current = 2;
 bool currenton = false;
 bool currentact = false;
 int factor1 = 50;
-int factor2 = 0;
+int factor2 = 50;
 int factor3 = 0;
 String Irms1;
 int I1[1000];
@@ -371,7 +371,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor4\":\"" + String(tempsensor4) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor14\":\"" + String(in_State) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -507,8 +507,8 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  //WiFi.begin("Funcionario", "Minsal.2014");
-  WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
+  WiFi.begin("#SCA_signal", "SCA@Modern2019");
+  //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
   k++;
   if (k == 5)
   {
