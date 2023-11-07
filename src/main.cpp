@@ -11,6 +11,7 @@ const int wifitimeout = 2000;
 String apiKey = "453OP6IXES3VEVOS";
 const char *serverName = "https://iotesla.herokuapp.com/datos/"; /*"http://api.thingspeak.com/update"*/
 int k = 0;
+int u = 0;
 
 //MQTT
 extern "C" {
@@ -26,7 +27,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "tesla640";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo4/receiver";
+const char *PubTopic  = "iotesla/modulo1/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -371,7 +372,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_001\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -520,6 +521,11 @@ void connectToMqtt()
 {
   Serial.println("Connecting to MQTT...");
   mqttClient.connect();
+  u++;
+  if (u == 5)
+  {
+    esp_restart();
+  }
 }
 
 void WiFiEvent(WiFiEvent_t event)
