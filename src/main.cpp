@@ -27,7 +27,7 @@ const char* username_mqtt = "iotesla";
 const char* password_mqtt = "tesla640";
 const uint16_t keepalive_mqtt = 15;
 
-const char *PubTopic  = "iotesla/modulo1/receiver";
+const char *PubTopic  = "iotesla/modulo4/receiver";
 
 AsyncMqttClient mqttClient;
 TimerHandle_t mqttReconnectTimer;
@@ -356,7 +356,7 @@ void setup()
   xSemaphoreTake(sd_sem,portMAX_DELAY);
   digitalWrite(LED_BUILTIN, HIGH);
   time = rtc.now();
-  String allsensor = String(tempsensor1) + "," + String(tempsensor2) + "," + String(tempsensor3) + "," + String(tempsensor4) + "," + String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(in_State);
+  String allsensor = String(tempsensor1) + "," + String(tempsensor2) + "," + String(tempsensor3) + "," + String(tempsensor4) + "," + String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(Irms2) + "," + String(in_State);
   datalog = time.timestamp() + "," + allsensor + "\r\n";
   filename = "/" + time.timestamp(DateTime::TIMESTAMP_DATE) + ".csv";
   path = filename.c_str();
@@ -372,7 +372,7 @@ void setup()
   if (WiFi.status() == WL_CONNECTED)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    String jsondata = "{\"modulo\":\"M2P_001\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
+    String jsondata = "{\"modulo\":\"M2P_004\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"sensor2\":\"" + String(tempsensor2) + "\",\"sensor3\":\"" + String(tempsensor3) + "\",\"sensor6\":\"" + String(tempamb) + "\",\"sensor7\":\"" + String(hum) + "\",\"sensor8\":\"" + String(Irms1) + "\",\"sensor9\":\"" + String(Irms2) + "\"}";
     uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());  
     Serial.println(packetIdPub1);
     delay(10);
@@ -498,7 +498,7 @@ void openFile(fs::FS &fs, const char *path)
   File file = fs.open(path);
   if (!file)
   {
-    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, TempAmb, Humidity, Current1 \r\n");
+    writeFile(SD, path, "Hour, Temp1, Temp2, Temp3, Temp4, TempAmb, Humidity, Current1, Current2 \r\n");
     delay(1);
     return;
   }
