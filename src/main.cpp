@@ -199,7 +199,7 @@ void setup()
   mqttClient.onUnsubscribe(onMqttUnsubscribe);
   mqttClient.onMessage(onMqttMessage);
   mqttClient.onPublish(onMqttPublish);
-
+  mqttClient.setSecure(true)
   mqttClient.setServer(MQTT_HOST, MQTT_PORT);
   mqttClient.setCredentials(username_mqtt, password_mqtt);
   mqttClient.setKeepAlive(keepalive_mqtt);

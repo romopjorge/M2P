@@ -18,6 +18,8 @@
 #error Platform not supported
 #endif
 
+#define ASYNC_TCP_SSL_ENABLED 1
+
 #if ASYNC_TCP_SSL_ENABLED
 #include <tcp_axtls.h>
 #define SHA1_SIZE 20
