@@ -4,3 +4,20 @@
     "idf.adapterTargetName": "C:\\Users\\TESLA2021\\esp\\esp-idf\\tools\\check_python_dependencies.py:12: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html",
     "C_Cpp.errorSquiggles": "disabled"
 }
+
+{
+    "extensions.ignoreRecommendations": true,
+    "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
+    "files.associations": {
+        "*.ino": "cpp"
+    },
+    "configurations": [
+        {
+            "name": "Libraries",
+            "includePath": [
+                "${workspaceFolder}/lib/**",
+                "${default}"
+            ]
+        }
+    ]   
+}
