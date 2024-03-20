@@ -33,7 +33,7 @@ extern "C"
 #define MQTT_SECURE true
 
 const uint8_t MQTT_SERVER_FINGERPRINT[] = {0x41, 0x31, 0x0D, 0x31, 0x37, 0x06, 0x8F, 0xAC, 0xC9, 0xE3, 0xE6, 0xFC, 0xF1, 0x88, 0x89, 0x71, 0xC1, 0x69, 0xF5, 0xB3};
-const char *PubTopic = "iotesla/modulo2/receiver"; // Topic to publish
+const char *PubTopic = "iotesla/modulo5/receiver"; // Topic to publish
 
 #define MQTT_PORT 8883
 
@@ -85,8 +85,8 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0};
-uint8_t sensor2[8] = {0};
+uint8_t sensor1[8] = {0x28, 0x5E, 0x81, 0x14, 0x00, 0x00, 0x00, 0x13};
+uint8_t sensor2[8] = {0x28, 0xDB, 0xDA, 0x14, 0x00, 0x00, 0x00, 0xF7};
 uint8_t sensor3[8] = {0};
 uint8_t sensor4[8] = {0};
 uint8_t sensor5[8] = {0};
@@ -98,11 +98,11 @@ float tempsensor5;
 
 // Current
 int sum = 0;
-int current = 2;
+int current = 0;
 bool currenton = false;
 bool currentact = false;
-int factor1 = 30;
-int factor2 = 30;
+int factor1 = 0;
+int factor2 = 0;
 int factor3 = 0;
 String Irms1;
 int I1[1000];
@@ -121,17 +121,21 @@ ADS1015 ADS2(0x49);
 void writeFile(fs::FS &fs, const char *path, const char *message);
 void appendFile(fs::FS &fs, const char *path, const char *message);
 void openFile(fs::FS &fs, const char *path);
-void onMqttConnect(bool sessionPresent);
 void connectToWifi();
+/*
 void connectToMqtt();
 void WiFiEvent(WiFiEvent_t event);
+*/
 void printSeparationLine();
+/*
+void onMqttConnect(bool sessionPresent);
 void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
 void onMqttSubscribe(const uint16_t &packetId, const uint8_t &qos);
 void onMqttUnsubscribe(const uint16_t &packetId);
 void onMqttMessage(char *topic, char *payload, const AsyncMqttClientMessageProperties &properties,
                    const size_t &len, const size_t &index, const size_t &total);
 void onMqttPublish(const uint16_t &packetId);
+*/
 void isr();
 
 float battery;
@@ -139,8 +143,8 @@ int period = 0;
 unsigned long time_now = 0;
 
 // Entradas
-const int in_Pin1 = 35;
-const int in_Pin2 = 32;
+//const int in_Pin1 = 35;
+//const int in_Pin2 = 32;
 int in_State1 = 0;
 int in_State2 = 0;
 
@@ -148,8 +152,15 @@ int in_State2 = 0;
 RTC_DATA_ATTR int updt_day = 0;
 RTC_DATA_ATTR int int_state = 1;
 
+// OTA
+
 void setup()
 {
+
+  //-Serial----------------------------------------------------------------------------
+
+  Serial.begin(115200);
+  delay(1);
 
   //-WiFi------------------------------------------------------------------------------
 
@@ -157,13 +168,10 @@ void setup()
 
   //-Entradas--------------------------------------------------------------------------
 
-  attachInterrupt(32, isr, CHANGE);
-  attachInterrupt(35, isr, CHANGE);
+  //attachInterrupt(32, isr, CHANGE);
+  //attachInterrupt(35, isr, CHANGE);
 
   //-----------------------------------------------------------------------------------
-
-  Serial.begin(115200);
-  delay(1);
 
   SD.begin(5);
   delay(1);
@@ -196,15 +204,16 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   delay(1);
 
-  pinMode(in_Pin1, INPUT);
-  delay(1);
+  //pinMode(in_Pin1, INPUT);
+  //delay(1);
 
-  pinMode(in_Pin2, INPUT);
-  delay(1);
+  //pinMode(in_Pin2, INPUT);
+  //delay(1);
 
   bin_sem = xSemaphoreCreateBinary();
   sd_sem = xSemaphoreCreateMutex();
 
+  /*
   mqttReconnectTimer = xTimerCreate("mqttTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0,
                                     reinterpret_cast<TimerCallbackFunction_t>(connectToMqtt));
   wifiReconnectTimer = xTimerCreate("wifiTimer", pdMS_TO_TICKS(2000), pdFALSE, (void *)0,
@@ -232,6 +241,7 @@ void setup()
   }
 
 #endif
+*/
 }
 
 void loop()
@@ -246,8 +256,8 @@ void loop()
 
     //-Input--------------------------------------------------------------------------
 
-    in_State1 = digitalRead(in_Pin1);
-    in_State2 = digitalRead(in_Pin2);
+    //in_State1 = digitalRead(in_Pin1);
+    //in_State2 = digitalRead(in_Pin2);
 
     //-Temperatura--------------------------------------------------------------------
 
@@ -374,9 +384,10 @@ void loop()
     }
 
     //-RTC----------------------------------------------------------------------------
-    DateTime time = rtc.now();
-    int now_day = time.day();
 
+    DateTime time = rtc.now();
+/*
+    int now_day = time.day();
     if (WiFi.status() == WL_CONNECTED && updt_day != now_day)
     {
       timeClient.begin();
@@ -389,6 +400,7 @@ void loop()
       rtc.adjust(DateTime(currentYear, currentMonth, monthDay, (timeClient.getHours()), (timeClient.getMinutes()), (timeClient.getSeconds())));
       updt_day = now_day;
     }
+*/
 
     //-SD------------------------------------------------------------------------
 
@@ -406,12 +418,13 @@ void loop()
 
     //-MQTT-----------------------------------------------------------------------
 
+    /*
     const int start_http = millis();
     xSemaphoreTake(bin_sem, portMAX_DELAY);
     if (WiFi.status() == WL_CONNECTED)
     {
       digitalWrite(LED_BUILTIN, HIGH);
-      String jsondata = "{\"modulo\":\"M2P_002\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"id1\":\"1\",\"sensor2\":\"" + String(tempsensor2) + "\",\"id2\":\"2\",\"sensor3\":\"" + String(tempsensor3) + "\",\"id3\":\"3\",\"sensor4\":\"" + String(tempsensor4) + "\",\"id4\":\"4\",\"sensor5\":\"" + String(tempsensor5) + "\",\"id5\":\"5\",\"sensor6\":\"" + String(tempamb) + "\",\"id6\":\"6\",\"sensor7\":\"" + String(hum) + "\",\"id7\":\"7\",\"sensor8\":\"" + String(Irms1) + "\",\"id8\":\"8\",\"sensor9\":\"" + String(Irms2) + "\",\"id9\":\"9\",\"sensor10\":\"" + String(Irms3) + "\",\"id10\":\"10\",\"sensor11\":\"" + String(in_State1) + "\",\"id11\":\"11\",\"sensor12\":\"" + String(in_State2) + "\",\"id12\":\"12\"}";
+      String jsondata = "{\"modulo\":\"M2P_005\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"id1\":\"1\",\"sensor2\":\"" + String(tempsensor2) + "\",\"id2\":\"2\",\"sensor3\":\"" + String(tempsensor3) + "\",\"id3\":\"3\",\"sensor4\":\"" + String(tempsensor4) + "\",\"id4\":\"4\",\"sensor5\":\"" + String(tempsensor5) + "\",\"id5\":\"5\",\"sensor6\":\"" + String(tempamb) + "\",\"id6\":\"6\",\"sensor7\":\"" + String(hum) + "\",\"id7\":\"7\",\"sensor8\":\"" + String(Irms1) + "\",\"id8\":\"8\",\"sensor9\":\"" + String(Irms2) + "\",\"id9\":\"9\",\"sensor10\":\"" + String(Irms3) + "\",\"id10\":\"10\",\"sensor11\":\"" + String(in_State1) + "\",\"id11\":\"11\",\"sensor12\":\"" + String(in_State2) + "\",\"id12\":\"12\"}";
       uint16_t packetIdPub1 = mqttClient.publish(PubTopic, 1, true, jsondata.c_str());
       Serial.println(packetIdPub1);
       delay(10);
@@ -421,6 +434,31 @@ void loop()
     {
       connectToWifi();
     }
+    */
+
+    //-HTTP-----------------------------------------------------------------------
+
+    Serial.print(tempamb);
+    Serial.print("°, ");
+    Serial.print(hum);
+    Serial.println("%");
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+      HTTPClient http;
+      http.begin("http://192.168.4.1:80/gateway?");
+      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+      String postData = "parametro1=modulo5&parametro2={\"modulo\":\"M2P_005\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"id1\":\"1\",\"sensor2\":\"" + String(tempsensor2) + "\",\"id2\":\"2\",\"sensor3\":\"" + String(tempsensor3) + "\",\"id3\":\"3\",\"sensor4\":\"" + String(tempsensor4) + "\",\"id4\":\"4\",\"sensor5\":\"" + String(tempsensor5) + "\",\"id5\":\"5\",\"sensor6\":\"" + String(tempamb) + "\",\"id6\":\"6\",\"sensor7\":\"" + String(hum) + "\",\"id7\":\"7\",\"sensor8\":\"" + String(Irms1) + "\",\"id8\":\"8\",\"sensor9\":\"" + String(Irms2) + "\",\"id9\":\"9\",\"sensor10\":\"" + String(Irms3) + "\",\"id10\":\"10\",\"sensor11\":\"" + String(in_State1) + "\",\"id11\":\"11\",\"sensor12\":\"" + String(in_State2) + "\",\"id12\":\"12\"}"; // Datos que deseas enviar en el POST
+      int httpResponseCode = http.POST(postData);
+      delay(10);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
+    else
+    {
+      connectToWifi();
+    }
+
   }
 }
 
@@ -482,15 +520,22 @@ void openFile(fs::FS &fs, const char *path)
 void connectToWifi()
 {
   Serial.println("Connecting to Wi-Fi...");
-  WiFi.begin("SNP Visitas", "2020#Pesca");
+  WiFi.begin("M2P_Test", "tesla640");
   //WiFi.begin("TESLA LIMITADA", "sp2PxwdwQ3mx");
-  k++;
-  if (k == 5)
-  {
-    esp_restart();
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    k++;
+    if (k == 10)
+    {
+      esp_restart();
+    }
   }
+  Serial.println("");
 }
 
+/*
 void connectToMqtt()
 {
   Serial.println("Connecting to MQTT...");
@@ -557,12 +602,14 @@ void WiFiEvent(WiFiEvent_t event)
     break;
   }
 }
+*/
 
 void printSeparationLine()
 {
   Serial.println("************************************************");
 }
 
+/*
 void onMqttConnect(bool sessionPresent)
 {
   Serial.print("Connected to MQTT broker: ");
@@ -636,6 +683,7 @@ void onMqttPublish(const uint16_t &packetId)
   xSemaphoreGive(bin_sem);
   return;
 }
+*/
 
 void IRAM_ATTR isr() {
   period = 0;
