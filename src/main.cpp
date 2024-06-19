@@ -33,7 +33,7 @@ extern "C"
 #define MQTT_SECURE true
 
 const uint8_t MQTT_SERVER_FINGERPRINT[] = {0x41, 0x31, 0x0D, 0x31, 0x37, 0x06, 0x8F, 0xAC, 0xC9, 0xE3, 0xE6, 0xFC, 0xF1, 0x88, 0x89, 0x71, 0xC1, 0x69, 0xF5, 0xB3};
-const char *PubTopic = "iotesla/modulo5/receiver"; // Topic to publish
+const char *PubTopic = "iotesla/modulo6/receiver"; // Topic to publish
 
 #define MQTT_PORT 8883
 
@@ -59,7 +59,7 @@ static SemaphoreHandle_t sd_sem;
 #include "RTClib.h"
 #include "NTPClient.h"
 RTC_DS1307 rtc;
-const long utcOffsetInSeconds = -3 * 3600;
+const long utcOffsetInSeconds = -4 * 3600;
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
 
@@ -73,7 +73,7 @@ String datalog = "";
 // Humidity Sensor
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
-#define DHTPIN 25
+#define DHTPIN 15
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 float hum;
@@ -85,16 +85,23 @@ float tempamb;
 // DS18B20 Sensor
 #include <OneWire.h>
 #include <DallasTemperature.h>
-uint8_t sensor1[8] = {0x28, 0x5E, 0x81, 0x14, 0x00, 0x00, 0x00, 0x13};
-uint8_t sensor2[8] = {0x28, 0xDB, 0xDA, 0x14, 0x00, 0x00, 0x00, 0xF7};
-uint8_t sensor3[8] = {0};
-uint8_t sensor4[8] = {0};
-uint8_t sensor5[8] = {0};
-float tempsensor1;
-float tempsensor2;
-float tempsensor3;
-float tempsensor4;
-float tempsensor5;
+static float temp[5];
+//
+OneWire oneWire1(13);
+DallasTemperature sensor1(&oneWire1);
+//
+OneWire oneWire2(14);
+DallasTemperature sensor2(&oneWire2);
+//
+OneWire oneWire3(27);
+DallasTemperature sensor3(&oneWire3);
+//
+OneWire oneWire4(26);
+DallasTemperature sensor4(&oneWire4);
+//
+OneWire oneWire5(25);
+DallasTemperature sensor5(&oneWire5);
+//
 
 // Current
 int sum = 0;
@@ -112,10 +119,8 @@ String Irms3;
 int I3[1000];
 
 // Instancias
-OneWire oneWire(33);
-DallasTemperature sensors(&oneWire);
-ADS1015 ADS1(0x48);
-ADS1015 ADS2(0x49);
+//ADS1015 ADS1(0x48);
+//ADS1015 ADS2(0x49);
 
 // Funciones
 void writeFile(fs::FS &fs, const char *path, const char *message);
@@ -180,19 +185,31 @@ void setup()
   Wire.setClock(400000);
   delay(1);
 
+  /*
   ADS1.begin();
   ADS1.setGain(4);
   ADS1.setDataRate(7);
   delay(1);
 
-  /*
+
   ADS2.begin();
   ADS2.setGain(4);
   ADS2.setDataRate(7);
   delay(1);
   */
 
-  sensors.begin();
+  sensor1.begin();delay(1);
+  sensor2.begin();delay(1);
+  sensor3.begin();delay(1);
+  sensor4.begin();delay(1);
+  sensor5.begin();delay(1);
+  //
+  sensor1.requestTemperatures();delay(1);
+  sensor2.requestTemperatures();delay(1);
+  sensor3.requestTemperatures();delay(1);
+  sensor4.requestTemperatures();delay(1);
+  sensor5.requestTemperatures();delay(1);
+  //
   delay(1);
 
   dht.begin();
@@ -261,52 +278,17 @@ void loop()
 
     //-Temperatura--------------------------------------------------------------------
 
-    sensors.requestTemperatures();
+    sensor1.requestTemperatures();delay(1);
+    sensor2.requestTemperatures();delay(1);
+    sensor3.requestTemperatures();delay(1);
+    sensor4.requestTemperatures();delay(1);
+    sensor5.requestTemperatures();delay(1);
 
-    if (sensor1[0] != 0 && sensor1[1] != 0)
-    {
-      tempsensor1 = sensors.getTempC(sensor1);
-    }
-    else
-    {
-      tempsensor1 = -127;
-    }
-
-    if (sensor2[0] != 0 && sensor2[1] != 0)
-    {
-      tempsensor2 = sensors.getTempC(sensor2);
-    }
-    else
-    {
-      tempsensor2 = -127;
-    }
-
-    if (sensor3[0] != 0 && sensor3[1] != 0)
-    {
-      tempsensor3 = sensors.getTempC(sensor3);
-    }
-    else
-    {
-      tempsensor3 = -127;
-    }
-
-    if (sensor4[0] != 0 && sensor4[1] != 0)
-    {
-      tempsensor4 = sensors.getTempC(sensor4);
-    }
-    else
-    {
-      tempsensor4 = -127;
-    }
-
-    if (sensor5[0] != 0 && sensor5[1] != 0)
-    {
-      tempsensor5 = sensors.getTempC(sensor5);
-    }
-    else
-    {
-      tempsensor5 = -127;
-    }
+    temp[0] = sensor1.getTempCByIndex(0);delay(1);
+    temp[1] = sensor2.getTempCByIndex(0);delay(1);
+    temp[2] = sensor3.getTempCByIndex(0);delay(1);
+    temp[3] = sensor4.getTempCByIndex(0);delay(1);
+    temp[4] = sensor5.getTempCByIndex(0);delay(1);
 
     //-Humedad--------------------------------------------------------------------------
 
@@ -314,7 +296,7 @@ void loop()
     tempamb = dht.readTemperature();
 
     //-Corriente------------------------------------------------------------------------
-
+/*
     if (current >= 1)
     {
       for (int j = 0; j < 1000; ++j) // initialize elements of array n to 0
@@ -382,10 +364,11 @@ void loop()
         }
       }
     }
-
+*/
     //-RTC----------------------------------------------------------------------------
 
     DateTime time = rtc.now();
+    delay(1);
 /*
     int now_day = time.day();
     if (WiFi.status() == WL_CONNECTED && updt_day != now_day)
@@ -407,7 +390,7 @@ void loop()
     xSemaphoreTake(sd_sem, portMAX_DELAY);
     digitalWrite(LED_BUILTIN, HIGH);
     time = rtc.now();
-    String allsensor = String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(Irms2) + "," + String(in_State1) + "," + String(in_State1);
+    String allsensor = String(temp[0]) + "," + String(temp[1]) + "," + String(tempamb) + "," + String(hum) + "," + String(Irms1) + "," + String(Irms2) + "," + String(in_State1) + "," + String(in_State2);
     datalog = time.timestamp() + "," + allsensor + "\r\n";
     filename = "/" + time.timestamp(DateTime::TIMESTAMP_DATE) + ".csv";
     path = filename.c_str();
@@ -415,6 +398,7 @@ void loop()
     appendFile(SD, path, datalog.c_str());
     digitalWrite(LED_BUILTIN, LOW);
     xSemaphoreGive(sd_sem);
+
 
     //-MQTT-----------------------------------------------------------------------
 
@@ -438,18 +422,13 @@ void loop()
 
     //-HTTP-----------------------------------------------------------------------
 
-    Serial.print(tempamb);
-    Serial.print("°, ");
-    Serial.print(hum);
-    Serial.println("%");
-
     if (WiFi.status() == WL_CONNECTED)
     {
       digitalWrite(LED_BUILTIN, HIGH);
       HTTPClient http;
       http.begin("http://192.168.4.1:80/gateway?");
       http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-      String postData = "parametro1=modulo5&parametro2={\"modulo\":\"M2P_005\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(tempsensor1) + "\",\"id1\":\"1\",\"sensor2\":\"" + String(tempsensor2) + "\",\"id2\":\"2\",\"sensor3\":\"" + String(tempsensor3) + "\",\"id3\":\"3\",\"sensor4\":\"" + String(tempsensor4) + "\",\"id4\":\"4\",\"sensor5\":\"" + String(tempsensor5) + "\",\"id5\":\"5\",\"sensor6\":\"" + String(tempamb) + "\",\"id6\":\"6\",\"sensor7\":\"" + String(hum) + "\",\"id7\":\"7\",\"sensor8\":\"" + String(Irms1) + "\",\"id8\":\"8\",\"sensor9\":\"" + String(Irms2) + "\",\"id9\":\"9\",\"sensor10\":\"" + String(Irms3) + "\",\"id10\":\"10\",\"sensor11\":\"" + String(in_State1) + "\",\"id11\":\"11\",\"sensor12\":\"" + String(in_State2) + "\",\"id12\":\"12\"}"; // Datos que deseas enviar en el POST
+      String postData = "parametro1=modulo6&parametro2={\"modulo\":\"M2P_006\",\"timestamp\":\"" + time.timestamp() + "\",\"sensor1\":\"" + String(temp[0]) + "\",\"id1\":\"1\",\"sensor2\":\"" + String(temp[1]) + "\",\"id2\":\"2\",\"sensor3\":\"" + String(temp[2]) + "\",\"id3\":\"3\",\"sensor4\":\"" + String(temp[3]) + "\",\"id4\":\"4\",\"sensor5\":\"" + String(temp[4]) + "\",\"id5\":\"5\",\"sensor6\":\"" + String(tempamb) + "\",\"id6\":\"6\",\"sensor7\":\"" + String(hum) + "\",\"id7\":\"7\",\"sensor8\":\"" + String(Irms1) + "\",\"id8\":\"8\",\"sensor9\":\"" + String(Irms2) + "\",\"id9\":\"9\",\"sensor10\":\"" + String(Irms3) + "\",\"id10\":\"10\",\"sensor11\":\"" + String(in_State1) + "\",\"id11\":\"11\",\"sensor12\":\"" + String(in_State2) + "\",\"id12\":\"12\"}"; // Datos que deseas enviar en el POST
       int httpResponseCode = http.POST(postData);
       delay(10);
       digitalWrite(LED_BUILTIN, LOW);
@@ -510,7 +489,7 @@ void openFile(fs::FS &fs, const char *path)
   File file = fs.open(path);
   if (!file)
   {
-    writeFile(SD, path, "Hour, TempAmb, Humidity, Current1, Current2, In1, In2 \r\n");
+    writeFile(SD, path, "Hour, Temp1, Temp2, TempAmb, Humidity, Current1, Current2, In1, In2 \r\n");
     delay(1);
     return;
   }
